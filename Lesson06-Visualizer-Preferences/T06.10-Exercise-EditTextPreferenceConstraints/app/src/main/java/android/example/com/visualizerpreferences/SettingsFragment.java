@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 // TODO (1) Implement OnPreferenceChangeListener
 public class SettingsFragment extends PreferenceFragmentCompat implements
-        OnSharedPreferenceChangeListener {
+        OnSharedPreferenceChangeListener, Preference.OnPreferenceChangeListener {
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {
@@ -52,6 +52,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             }
         }
         // TODO (3) Add the OnPreferenceChangeListener specifically to the EditTextPreference
+        Preference p = findPreference(getString(R.string.pref_size_key));
+        p.setOnPreferenceChangeListener(this);
     }
 
     @Override
@@ -94,6 +96,28 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
     // an error message and return false. If it is a valid number, return true.
 
     @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        Toast tError = Toast.makeText(getContext(),"Value for size must be between 0.1 & 3", Toast.LENGTH_SHORT);
+        if(preference.getKey().equals(getString(R.string.pref_size_key))){
+            String strSize = ((String)newValue).trim();
+            strSize = (strSize == null) ? "1" : strSize;
+            try{
+                float size = Float.parseFloat(strSize);
+                if(size <= 0 || size > 3){
+                    tError.show();
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                tError.show();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getPreferenceScreen().getSharedPreferences()
@@ -106,4 +130,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
+
+
 }
