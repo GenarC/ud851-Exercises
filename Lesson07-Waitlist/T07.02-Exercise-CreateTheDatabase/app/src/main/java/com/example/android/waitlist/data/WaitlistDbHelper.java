@@ -35,6 +35,8 @@ public class WaitlistDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         String DROP_TABLE = "DROP TABLE "
                 + WaitlistContract.WaitlistEntry.TABLE_NAME;
+        db.execSQL(DROP_TABLE);
+
         this.onCreate(db);
     }
 
