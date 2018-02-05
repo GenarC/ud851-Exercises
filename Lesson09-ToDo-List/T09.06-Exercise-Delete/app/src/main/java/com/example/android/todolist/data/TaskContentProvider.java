@@ -157,13 +157,34 @@ public class TaskContentProvider extends ContentProvider {
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
 
         // TODO (1) Get access to the database and write URI matching code to recognize a single item
+        final SQLiteDatabase db = mTaskDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        int affectedRows = 0;
 
         // TODO (2) Write the code to delete a single row of data
         // [Hint] Use selections to delete an item by its row ID
+        switch(match){
+            case TASK_WITH_ID:
+
+                String id = uri.getPathSegments().get(1);
+                String mWhereClause = TaskContract.TaskEntry._ID+"=?";
+                String[] mWhereArgs = new String[]{id};
+
+                try{
+                    affectedRows = db.delete(TaskContract.TaskEntry.TABLE_NAME,mWhereClause,mWhereArgs);
+                }catch (Exception ex){
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            default: throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri,null);
 
         // TODO (3) Notify the resolver of a change and return the number of items deleted
 
-        throw new UnsupportedOperationException("Not yet implemented");
+        //throw new UnsupportedOperationException("Not yet implemented");
+        return affectedRows;
     }
 
 
