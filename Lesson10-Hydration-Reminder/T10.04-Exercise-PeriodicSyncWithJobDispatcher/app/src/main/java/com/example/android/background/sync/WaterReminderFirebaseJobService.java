@@ -16,7 +16,7 @@
 package com.example.android.background.sync;
 
 import android.app.job.JobParameters;
-import android.app.job.JobService;
+import com.firebase.jobdispatcher.JobService;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -25,28 +25,6 @@ public class WaterReminderFirebaseJobService extends JobService {
     // TODO (3) WaterReminderFirebaseJobService should extend from JobService
 
     // TODO (4) Override onStartJob
-
-    @Override
-    public boolean onStartJob(final JobParameters jobParameters) {
-        mBackgroundTask = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                Context context = WaterReminderFirebaseJobService.this;
-                ReminderTasks.executeTask(context, ReminderTasks.ACTION_CHARGING_REMINDER);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                jobFinished(jobParameters, false);
-                super.onPostExecute(o);
-            }
-        };
-
-        mBackgroundTask.execute();
-        return true;
-    }
-
     // TODO (5) By default, jobs are executed on the main thread, so make an anonymous class extending
         //  AsyncTask called mBackgroundTask.
             // TODO (6) Override doInBackground
@@ -60,8 +38,31 @@ public class WaterReminderFirebaseJobService extends JobService {
         // TODO (9) Execute the AsyncTask
         // TODO (10) Return true
 
+
+
     @Override
-    public boolean onStopJob(JobParameters jobParameters) {
+    public boolean onStartJob(final com.firebase.jobdispatcher.JobParameters jobParameters) {
+        mBackgroundTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Context context = WaterReminderFirebaseJobService.this;
+                ReminderTasks.executeTask(context, ReminderTasks.ACTION_CHARGING_REMINDER);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                jobFinished(jobParameters, false);
+                /*super.onPostExecute(o);*/
+            }
+        };
+
+        mBackgroundTask.execute();
+        return true;
+    }
+
+    @Override
+    public boolean onStopJob(com.firebase.jobdispatcher.JobParameters jobParameters) {
         if(mBackgroundTask != null){
             mBackgroundTask.cancel(true);
         }
