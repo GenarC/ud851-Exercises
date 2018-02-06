@@ -15,11 +15,39 @@
  */
 package com.example.android.background.sync;
 
-public class WaterReminderFirebaseJobService {
+import android.app.job.JobParameters;
+import android.app.job.JobService;
+import android.content.Context;
+import android.os.AsyncTask;
+
+public class WaterReminderFirebaseJobService extends JobService {
+    private AsyncTask mBackgroundTask;
     // TODO (3) WaterReminderFirebaseJobService should extend from JobService
 
     // TODO (4) Override onStartJob
-        // TODO (5) By default, jobs are executed on the main thread, so make an anonymous class extending
+
+    @Override
+    public boolean onStartJob(final JobParameters jobParameters) {
+        mBackgroundTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Context context = WaterReminderFirebaseJobService.this;
+                ReminderTasks.executeTask(context, ReminderTasks.ACTION_CHARGING_REMINDER);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                jobFinished(jobParameters, false);
+                super.onPostExecute(o);
+            }
+        };
+
+        mBackgroundTask.execute();
+        return true;
+    }
+
+    // TODO (5) By default, jobs are executed on the main thread, so make an anonymous class extending
         //  AsyncTask called mBackgroundTask.
             // TODO (6) Override doInBackground
                 // TODO (7) Use ReminderTasks to execute the new charging reminder task you made, use
@@ -31,6 +59,15 @@ public class WaterReminderFirebaseJobService {
 
         // TODO (9) Execute the AsyncTask
         // TODO (10) Return true
+
+    @Override
+    public boolean onStopJob(JobParameters jobParameters) {
+        if(mBackgroundTask != null){
+            mBackgroundTask.cancel(true);
+        }
+        return true;
+    }
+
 
     // TODO (11) Override onStopJob
         // TODO (12) If mBackgroundTask is valid, cancel it
